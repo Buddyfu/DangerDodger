@@ -19,7 +19,7 @@ namespace DangerDodger
         private static readonly ILog Log = Logger.GetLoggerInstanceForType();
         private Gui _instance;
 
-        private const int SCAN_RADIUS = 60;
+        private const int SCAN_RADIUS = 70;
 
         private const float BEACON_RADIUS = 40;
         private const int BEACON_COOLDOWN = 1000;
@@ -192,17 +192,6 @@ namespace DangerDodger
 
             }
 
-            //TODO: Add exploding monsters kiting?
-            //TODO: Add corpse kiting if detonate dead nearby?
-            //TODO: Add storm call dodging? Does not appear in LokiPoe.ObjectManager.Objects 
-            //TODO: Add Flameblast dodging? Does not appear in LokiPoe.ObjectManager.Objects. Could try monster.CurrentAction.Skill.Name and monster.CurrentAction.Destination
-            //TODO: Allow the user to give specific monster names? Dodge monster by name
-            //TODO: Add support to dodge boss attacks? I'm wayyyyy to lazy to implement the attack detection for all the bosses.
-            //TODO: Add exploding monster dodging if too many nearby (Alira's Martyr, Carrion Minion and Unstable Larvae)
-            //TODO: Add leapslam dodging is too many monster are doing it at the same time
-            //TODO: Dodge poison bombs / caustic arrow? Do they even do that much dmg? Maybe if the monster casting is Rare / Unique
-            //TODO: Dodge poison cloud created on zombie death?
-
             return false;
         }
 
@@ -240,6 +229,11 @@ namespace DangerDodger
                 }
             }
             return false;
+        }
+
+        public void dodgeEverything()
+        {
+            LokiPoe.Me.DodgeEverything = true;
         }
 
         /// <summary>
