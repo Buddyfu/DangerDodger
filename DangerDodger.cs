@@ -11,6 +11,7 @@ using DangerDodger.Utils;
 using Loki.Game.Objects;
 using Loki.Game.GameData;
 using Loki.Bot.Logic.Bots.OldGrindBot;
+using DangerDodger.Classes;
 
 namespace DangerDodger
 {
@@ -152,8 +153,28 @@ namespace DangerDodger
                 monsterStopwatch.ElapsedMilliseconds < DangerDodgerSettings.Instance.MonsterCooldown))
                 return false;
 
-            var surroundingObjects = LokiPoe.ObjectManager.Objects.Where(o => o.Distance <= SCAN_RADIUS).OrderBy(m => m.Distance).ToList();
-            var surroundingMonsters = surroundingObjects.OfType<Monster>().Where(m => m.IsHostile && !m.IsDead).ToList();
+            //caching monster to avoid exceptions.
+            var surroundingObjects = LokiPoe.ObjectManager.Objects
+                .Where(o => o.Distance <= SCAN_RADIUS)
+                .OrderBy(m => m.Distance)
+                .Select(o => new CachedNetworkObject()
+                {
+                    Name = o.Name,
+                    Distance = o.Distance,
+                    Position = new Vector2i(o.Position.X, o.Position.Y)
+                });
+            var surroundingMonsters = LokiPoe.ObjectManager.GetObjectsByType<Monster>()
+                .Where(m => m.Distance <= SCAN_RADIUS && m.IsHostile && !m.IsDead)
+                .OrderBy(m => m.Distance)
+                .Select(m => new CachedMonster()
+                {
+                    Name = m.Name,
+                    Distance = m.Distance,
+                    Position = new Vector2i(m.Position.X, m.Position.Y),
+                    Rarity = m.Rarity,
+                    MonsterTypeMetadata = m.MonsterTypeMetadata,
+                    hasAuraMonsterCannotDie = m.HasAura("monster_aura_cannot_die")
+                });
 
             //Handle exploding beacons
             if (DangerDodgerSettings.Instance.DodgeExplodingBeacons && beaconStopwatch.ElapsedMilliseconds >= BEACON_COOLDOWN)
@@ -168,8 +189,9 @@ namespace DangerDodger
                 var dangerousObjects = surroundingMonsters.Where(m => m.MonsterTypeMetadata == "Metadata/Monsters/Daemon/TalismanT1Bonespire");
                 await PerformKiting(dangerousObjects, dangerousObjects.FirstOrDefault(), BONESPIRE_RADIUS, bonespireStopwatch);
             }
+
             //return if a monster with the immortal aura is nearby. We don't want to run away from such monsters.
-            if (surroundingMonsters.Any(m => m.HasAura("monster_aura_cannot_die")))
+            if (surroundingMonsters.Any(m => m.hasAuraMonsterCannotDie))
                 return false;//TODO: Add logic to move towards this monster?
 
             //Handle monster kiting
@@ -206,7 +228,7 @@ namespace DangerDodger
             return false;
         }
 
-        public async Task<bool> PerformKiting(IEnumerable<NetworkObject> dangerousObjects, NetworkObject nearestThreat, float dangerRadius, Stopwatch stopwatchToReset = null)
+        public async Task<bool> PerformKiting(IEnumerable<CachedNetworkObject> dangerousObjects, CachedNetworkObject nearestThreat, float dangerRadius, Stopwatch stopwatchToReset = null)
         {
             if (dangerousObjects.Any())
             {
