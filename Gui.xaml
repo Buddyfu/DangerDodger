@@ -6,17 +6,17 @@
              xmlns:local="clr-namespace:DangerDodger"
 			 xmlns:settingsPath="clr-namespace:DangerDodger"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="600" d:DesignWidth="600">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <!-- Add DataContext="{x:Static settingsPath:DangerDodgerSettings.Instance}" -->
         <Grid x:Name="Root" DataContext="{x:Static settingsPath:DangerDodgerSettings.Instance}">
-            <GroupBox x:Name="groupBox2" Header="General" Margin="10,10,10,0" VerticalAlignment="Top" Height="96">
+            <GroupBox x:Name="groupBox2" Header="General" Margin="10,10,0,0" VerticalAlignment="Top" Height="96" HorizontalAlignment="Left" Width="249">
                 <Grid>
                     <Label x:Name="label" Content="Step Length: " HorizontalAlignment="Left" Margin="10,10,0,-2" VerticalAlignment="Top"/>
                     <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="23" Margin="94,10,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="40" Text="{Binding Path=StepLength, Mode=TwoWay}"/>
                 </Grid>
             </GroupBox>
-            <GroupBox x:Name="groupBox" Header="Monsters" Margin="10,111,10,0" VerticalAlignment="Top" Height="214">
+            <GroupBox x:Name="groupBox" Header="Monsters" Margin="10,111,0,0" VerticalAlignment="Top" Height="214" HorizontalAlignment="Left" Width="249">
                 <Grid>
                     <Label x:Name="label1" Content="Monster Danger Radius: " HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
                     <TextBox x:Name="textBox1" HorizontalAlignment="Left" Height="23" Margin="156,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="40" Text="{Binding Path=MonsterDangerRadius, Mode=TwoWay}"/>
@@ -29,11 +29,21 @@
                     <CheckBox x:Name="checkBox2" Content="Kite Unique Monsters" HorizontalAlignment="Left" Margin="10,137,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=DodgeUniqueMonsters, Mode=TwoWay}"/>
                 </Grid>
             </GroupBox>
-            <GroupBox x:Name="groupBox1" Header="Spells" Margin="10,330,10,0" VerticalAlignment="Top" Height="113">
+            <GroupBox x:Name="groupBox1" Header="Others" Margin="280,10,10,0" VerticalAlignment="Top" Height="133">
                 <Grid>
                     <CheckBox x:Name="checkBox3" Content="Dodge Exploding Beacons" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=DodgeExplodingBeacons, Mode=TwoWay}"/>
                     <CheckBox x:Name="checkBox4" Content="Dodge Bonespire" HorizontalAlignment="Left" Margin="10,30,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=DodgeBonespire, Mode=TwoWay}"/>
+                    <CheckBox x:Name="checkBox5" Content="Dodge Suicide Explosions" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=DodgeSuicideExplosion, Mode=TwoWay}"/>
                 </Grid>
+            </GroupBox>
+            <GroupBox x:Name="groupBox3" Header="Bosses" Margin="280,148,10,0" VerticalAlignment="Top" Height="197">
+                <ListView ItemsSource="{Binding Bosses, Mode=TwoWay}" Margin="10">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding Path=IsChecked, Mode=TwoWay}" Content="{Binding Path=Text}"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListView>
             </GroupBox>
         </Grid>
     </ScrollViewer>

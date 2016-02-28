@@ -1,17 +1,7 @@
-﻿using System;
+﻿using DangerDodger.Classes;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace DangerDodger
 {
@@ -23,6 +13,16 @@ namespace DangerDodger
         public Gui()
         {
             InitializeComponent();
+            List<CheckBoxListItem> defaultBossesValues = DangerDodger.bosses.Select(b => new CheckBoxListItem() { Text = b, IsChecked = true }).ToList();
+            if (DangerDodgerSettings.Instance.Bosses == null)
+            {
+                DangerDodgerSettings.Instance.Bosses = new List<CheckBoxListItem>();
+            }
+            foreach (CheckBoxListItem item in defaultBossesValues)
+            {
+                if (!DangerDodgerSettings.Instance.Bosses.Select(i => i.Text).Contains(item.Text))
+                    DangerDodgerSettings.Instance.Bosses.Add(item);
+            }
         }
     }
 }

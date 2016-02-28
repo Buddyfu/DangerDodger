@@ -37,6 +37,12 @@ namespace DangerDodger
         private Stopwatch suicideStopwatch = Stopwatch.StartNew();
         private Stopwatch monsterStopwatch = Stopwatch.StartNew();
 
+        public static List<string> bosses = new List<string>()
+        {
+            "test1",
+            "test2"
+        };
+
         #region Implementation of IAuthored
 
         /// <summary> The name of the plugin. </summary>
@@ -151,7 +157,7 @@ namespace DangerDodger
 
             if ((!DangerDodgerSettings.Instance.DodgeExplodingBeacons || beaconStopwatch.ElapsedMilliseconds < BEACON_COOLDOWN) &&
                 (!DangerDodgerSettings.Instance.DodgeBonespire || bonespireStopwatch.ElapsedMilliseconds < BONESPIRE_COOLDOWN) &&
-                (!true || suicideStopwatch.ElapsedMilliseconds < SUICIDE_COOLDOWN) &&
+                (!DangerDodgerSettings.Instance.DodgeSuicideExplosion || suicideStopwatch.ElapsedMilliseconds < SUICIDE_COOLDOWN) &&
                 ((!DangerDodgerSettings.Instance.DodgeUniqueMonsters &&
                 !DangerDodgerSettings.Instance.DodgeRareMonsters &&
                 !DangerDodgerSettings.Instance.DodgeMonsterPacks) ||
@@ -206,7 +212,7 @@ namespace DangerDodger
             }
 
             //Handle suicide explosions
-            if (true && suicideStopwatch.ElapsedMilliseconds >= SUICIDE_COOLDOWN)
+            if (DangerDodgerSettings.Instance.DodgeSuicideExplosion && suicideStopwatch.ElapsedMilliseconds >= SUICIDE_COOLDOWN)
             {
                 var dangerousObjects = surroundingMonsters.Where(m => m.hasSkillSuicideExplosion);
                 await PerformKiting(dangerousObjects, dangerousObjects.FirstOrDefault(m => m.currentSkillName == "suicide_explosion"), SUICIDE_RADIUS, suicideStopwatch);

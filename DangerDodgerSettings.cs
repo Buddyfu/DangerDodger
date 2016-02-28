@@ -1,11 +1,9 @@
-﻿using Loki;
+﻿using DangerDodger.Classes;
+using Loki;
 using Loki.Common;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DangerDodger
 {
@@ -32,11 +30,13 @@ namespace DangerDodger
         private bool _dodgeRareMonsters;
         private bool _dodgeUniqueMonsters;
         private bool _dodgeExplodingBeacon;
+        private bool _dodgeSuicideExplosion;
         private bool _dodgeBonespire;
         private int _monsterCooldown;
         private int _monsterDangerRadius;
         private int _monsterPackSize;
         private int _stepLength;
+        private List<CheckBoxListItem> _bosses;
 
         [DefaultValue(true)]
         public bool DodgeMonsterPacks
@@ -112,7 +112,22 @@ namespace DangerDodger
                 NotifyPropertyChanged(() => DodgeBonespire);
             }
         }
-        
+
+        [DefaultValue(true)]
+        public bool DodgeSuicideExplosion
+        {
+            get { return _dodgeSuicideExplosion; }
+            set
+            {
+                if (value.Equals(_dodgeSuicideExplosion))
+                {
+                    return;
+                }
+                _dodgeSuicideExplosion = value;
+                NotifyPropertyChanged(() => DodgeSuicideExplosion);
+            }
+        }
+
         [DefaultValue(1000)]
         public int MonsterCooldown
         {
@@ -170,6 +185,23 @@ namespace DangerDodger
                 }
                 _stepLength = value;
                 NotifyPropertyChanged(() => StepLength);
+            }
+        }
+
+        public List<CheckBoxListItem> Bosses
+        {
+            get
+            {
+                return _bosses;
+            }
+            set
+            {//never seems to get called, verify if it works/need to work
+                if (value != null && _bosses != null && value.SequenceEqual(_bosses))
+                {
+                    return;
+                }
+                _bosses = value;
+                NotifyPropertyChanged(() => Bosses);
             }
         }
     }
