@@ -28,9 +28,13 @@ namespace DangerDodger
         private const float BONESPIRE_RADIUS = 30;
         private const int BONESPIRE_COOLDOWN = 1000;
 
+        private const float SUICIDE_RADIUS = 10;
+        private const int SUICIDE_COOLDOWN = 1000;
+
 
         private Stopwatch beaconStopwatch = Stopwatch.StartNew();
         private Stopwatch bonespireStopwatch = Stopwatch.StartNew();
+        private Stopwatch suicideStopwatch = Stopwatch.StartNew();
         private Stopwatch monsterStopwatch = Stopwatch.StartNew();
 
         #region Implementation of IAuthored
@@ -147,34 +151,45 @@ namespace DangerDodger
 
             if ((!DangerDodgerSettings.Instance.DodgeExplodingBeacons || beaconStopwatch.ElapsedMilliseconds < BEACON_COOLDOWN) &&
                 (!DangerDodgerSettings.Instance.DodgeBonespire || bonespireStopwatch.ElapsedMilliseconds < BONESPIRE_COOLDOWN) &&
+                (!true || suicideStopwatch.ElapsedMilliseconds < SUICIDE_COOLDOWN) &&
                 ((!DangerDodgerSettings.Instance.DodgeUniqueMonsters &&
                 !DangerDodgerSettings.Instance.DodgeRareMonsters &&
                 !DangerDodgerSettings.Instance.DodgeMonsterPacks) ||
                 monsterStopwatch.ElapsedMilliseconds < DangerDodgerSettings.Instance.MonsterCooldown))
                 return false;
 
+            IEnumerable<CachedNetworkObject> surroundingObjects;
+            IEnumerable<CachedMonster> surroundingMonsters;
+
             //caching monster to avoid exceptions.
-            var surroundingObjects = LokiPoe.ObjectManager.Objects
-                .Where(o => o.Distance <= SCAN_RADIUS)
-                .OrderBy(m => m.Distance)
-                .Select(o => new CachedNetworkObject()
-                {
-                    Name = o.Name,
-                    Distance = o.Distance,
-                    Position = new Vector2i(o.Position.X, o.Position.Y)
-                });
-            var surroundingMonsters = LokiPoe.ObjectManager.GetObjectsByType<Monster>()
-                .Where(m => m.Distance <= SCAN_RADIUS && m.IsHostile && !m.IsDead)
-                .OrderBy(m => m.Distance)
-                .Select(m => new CachedMonster()
-                {
-                    Name = m.Name,
-                    Distance = m.Distance,
-                    Position = new Vector2i(m.Position.X, m.Position.Y),
-                    Rarity = m.Rarity,
-                    MonsterTypeMetadata = m.MonsterTypeMetadata,
-                    hasAuraMonsterCannotDie = m.HasAura("monster_aura_cannot_die")
-                });
+            lock (LokiPoe.ObjectManager.Objects)
+            {
+                surroundingObjects = LokiPoe.ObjectManager.Objects
+                    .Where(o => o.Distance <= SCAN_RADIUS)
+                    .OrderBy(m => m.Distance)
+                    .Select(o => new CachedNetworkObject()
+                    {
+                        Name = o.Name,
+                        Distance = o.Distance,
+                        Position = new Vector2i(o.Position.X, o.Position.Y)
+                    });
+                surroundingMonsters = LokiPoe.ObjectManager.GetObjectsByType<Monster>()
+                    .Where(m => m.Distance <= SCAN_RADIUS && m.IsHostile && !m.IsDead)
+                    .OrderBy(m => m.Distance)
+                    .Select(m => new CachedMonster()
+                    {
+                        Name = m.Name,
+                        Distance = m.Distance,
+                        Position = new Vector2i(m.Position.X, m.Position.Y),
+                        Rarity = m.Rarity,
+                        MonsterTypeMetadata = m.MonsterTypeMetadata,
+                        currentSkillName = (m.CurrentAction == null) ? "" : (m.CurrentAction.Skill == null) ? "" : m.CurrentAction.Skill.Name,
+                        currentSkillDestination = (m.CurrentAction == null) ? new Vector2i() : m.CurrentAction.Destination,
+                        hasAuraMonsterCannotDie = m.HasAura("monster_aura_cannot_die"),
+                        hasSkillSuicideExplosion = m.AvailableSkills.Any(s => s.Name == "suicide_explosion")
+                    });
+
+            }
 
             //Handle exploding beacons
             if (DangerDodgerSettings.Instance.DodgeExplodingBeacons && beaconStopwatch.ElapsedMilliseconds >= BEACON_COOLDOWN)
@@ -188,6 +203,13 @@ namespace DangerDodger
             {//TODO: Change logic to make the bot kite "forward". We need to get away from the bonespire, but keep close to the monster casting them.
                 var dangerousObjects = surroundingMonsters.Where(m => m.MonsterTypeMetadata == "Metadata/Monsters/Daemon/TalismanT1Bonespire");
                 await PerformKiting(dangerousObjects, dangerousObjects.FirstOrDefault(), BONESPIRE_RADIUS, bonespireStopwatch);
+            }
+
+            //Handle suicide explosions
+            if (true && suicideStopwatch.ElapsedMilliseconds >= SUICIDE_COOLDOWN)
+            {
+                var dangerousObjects = surroundingMonsters.Where(m => m.hasSkillSuicideExplosion);
+                await PerformKiting(dangerousObjects, dangerousObjects.FirstOrDefault(m => m.currentSkillName == "suicide_explosion"), SUICIDE_RADIUS, suicideStopwatch);
             }
 
             //return if a monster with the immortal aura is nearby. We don't want to run away from such monsters.
@@ -211,17 +233,21 @@ namespace DangerDodger
                     surroundingMonsters.Count() >= DangerDodgerSettings.Instance.MonsterPackSize &&
                     await PerformKiting(surroundingMonsters, surroundingMonsters.FirstOrDefault(), DangerDodgerSettings.Instance.MonsterDangerRadius))
                     return false;
-
             }
 
             //TODO: Add exploding monsters kiting?
+            //Monster Name: [Alira's Martyr], Skill Name: [suicide_explosion], Skill Destination: [{1685, 1302}], Skill Destination Distance: [0]
+
             //TODO: Add corpse kiting if detonate dead nearby?
             //TODO: Add storm call dodging? Does not appear in LokiPoe.ObjectManager.Objects 
             //TODO: Add Flameblast dodging? Does not appear in LokiPoe.ObjectManager.Objects. Could try monster.CurrentAction.Skill.Name and monster.CurrentAction.Destination
             //TODO: Allow the user to give specific monster names? Dodge monster by name
             //TODO: Add support to dodge boss attacks? I'm wayyyyy to lazy to implement the attack detection for all the bosses.
             //TODO: Add exploding monster dodging if too many nearby (Alira's Martyr, Carrion Minion and Unstable Larvae)
+
             //TODO: Add leapslam dodging is too many monster are doing it at the same time
+            //Monster Name: Goatman, Skill Name: Leap Slam, Skill Destination: {922, 996}, Skill Destination Distance: 4
+
             //TODO: Dodge poison bombs / caustic arrow? Do they even do that much dmg? Maybe if the monster casting is Rare / Unique
             //TODO: Dodge poison cloud created on zombie death?
 
