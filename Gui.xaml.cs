@@ -1,4 +1,5 @@
 ﻿using DangerDodger.Classes;
+using DangerDodger.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
@@ -13,7 +14,7 @@ namespace DangerDodger
         public Gui()
         {
             InitializeComponent();
-            List<CheckBoxListItem> defaultBossesValues = DangerDodger.bosses.Select(b => new CheckBoxListItem() { Text = b, IsChecked = true }).ToList();
+            List<CheckBoxListItem> defaultBossesValues = Bosses.AllBosses.Select(b => new CheckBoxListItem() { Text = b.Name, IsChecked = true }).ToList();
             if (DangerDodgerSettings.Instance.Bosses == null)
             {
                 DangerDodgerSettings.Instance.Bosses = new List<CheckBoxListItem>();

@@ -12,6 +12,7 @@ using Loki.Game.Objects;
 using Loki.Game.GameData;
 using Loki.Bot.Logic.Bots.OldGrindBot;
 using DangerDodger.Classes;
+using System.ComponentModel;
 
 namespace DangerDodger
 {
@@ -31,17 +32,44 @@ namespace DangerDodger
         private const float SUICIDE_RADIUS = 10;
         private const int SUICIDE_COOLDOWN = 1000;
 
+        private const int BOSS_DETECTION_COOLDOWN = 1000;
+
 
         private Stopwatch beaconStopwatch = Stopwatch.StartNew();
         private Stopwatch bonespireStopwatch = Stopwatch.StartNew();
         private Stopwatch suicideStopwatch = Stopwatch.StartNew();
+        private Stopwatch bossDetectionStopwatch = Stopwatch.StartNew();
         private Stopwatch monsterStopwatch = Stopwatch.StartNew();
 
-        public static List<string> bosses = new List<string>()
+        private List<Boss> bossesToDodge = new List<Boss>();
+
+        public DangerDodger()
         {
-            "test1",
-            "test2"
-        };
+            SetBossesToDodge();
+            DangerDodgerSettings.Instance.PropertyChanged += OnSettingsPropertyChanged;
+        }
+
+        protected void OnSettingsPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Log.InfoFormat("[DangerDodger] OnSettingsPropertyChanged");
+            SetBossesToDodge();
+        }
+
+        public void SetBossesToDodge()
+        {
+            Log.InfoFormat("[DangerDodger] SetBossesToDodge");
+            bossesToDodge = new List<Boss>();
+            if (DangerDodgerSettings.Instance.Bosses != null)
+            {
+                foreach (Boss boss in Bosses.AllBosses)
+                {
+                    if (DangerDodgerSettings.Instance.Bosses.Any(b => b.Text == boss.Name && b.IsChecked))
+                    {
+                        bossesToDodge.Add(boss);
+                    }
+                }
+            }
+        }
 
         #region Implementation of IAuthored
 
@@ -158,6 +186,7 @@ namespace DangerDodger
             if ((!DangerDodgerSettings.Instance.DodgeExplodingBeacons || beaconStopwatch.ElapsedMilliseconds < BEACON_COOLDOWN) &&
                 (!DangerDodgerSettings.Instance.DodgeBonespire || bonespireStopwatch.ElapsedMilliseconds < BONESPIRE_COOLDOWN) &&
                 (!DangerDodgerSettings.Instance.DodgeSuicideExplosion || suicideStopwatch.ElapsedMilliseconds < SUICIDE_COOLDOWN) &&
+                (!bossesToDodge.Any() || bossDetectionStopwatch.ElapsedMilliseconds < BOSS_DETECTION_COOLDOWN) &&
                 ((!DangerDodgerSettings.Instance.DodgeUniqueMonsters &&
                 !DangerDodgerSettings.Instance.DodgeRareMonsters &&
                 !DangerDodgerSettings.Instance.DodgeMonsterPacks) ||
@@ -216,6 +245,29 @@ namespace DangerDodger
             {
                 var dangerousObjects = surroundingMonsters.Where(m => m.hasSkillSuicideExplosion);
                 await PerformKiting(dangerousObjects, dangerousObjects.FirstOrDefault(m => m.currentSkillName == "suicide_explosion"), SUICIDE_RADIUS, suicideStopwatch);
+            }
+
+            //Handle boss attack dodging
+            if (false && bossDetectionStopwatch.ElapsedMilliseconds >= BOSS_DETECTION_COOLDOWN)
+            {
+                bool detectedBoss = false;
+                foreach (CachedMonster monster in surroundingMonsters.Where(m => m.Rarity == Rarity.Unique))
+                {
+                    Boss correspondingBoss = bossesToDodge.FirstOrDefault(b => b.Name == monster.Name);
+                    if (correspondingBoss != null)
+                    {
+                        if (correspondingBoss.Attack.Select(a => a.AttackName).Contains(monster.currentSkillName))
+                        {
+
+                            return false;
+                        }
+                        detectedBoss = true;
+                    }
+                }
+                if (!detectedBoss)
+                {
+                    bossDetectionStopwatch.Restart();
+                }
             }
 
             //return if a monster with the immortal aura is nearby. We don't want to run away from such monsters.
