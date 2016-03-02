@@ -14,7 +14,7 @@ namespace DangerDodger
         public Gui()
         {
             InitializeComponent();
-            List<CheckBoxListItem> defaultBossesValues = Bosses.AllBosses.Select(b => new CheckBoxListItem() { Text = b.Name, IsChecked = true }).ToList();
+            List<CheckBoxListItem> defaultBossesValues = BossDataExtractor.GetBossesInfo().Select(b => new CheckBoxListItem() { Text = b.Name, IsChecked = true }).ToList();
             if (DangerDodgerSettings.Instance.Bosses == null)
             {
                 DangerDodgerSettings.Instance.Bosses = new List<CheckBoxListItem>();

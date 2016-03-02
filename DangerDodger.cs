@@ -41,7 +41,7 @@ namespace DangerDodger
         private Stopwatch bossDetectionStopwatch = Stopwatch.StartNew();
         private Stopwatch monsterStopwatch = Stopwatch.StartNew();
 
-        private List<Boss> bossesToDodge = new List<Boss>();
+        private List<BossInfo> bossesToDodge = new List<BossInfo>();
 
         public DangerDodger()
         {
@@ -58,10 +58,10 @@ namespace DangerDodger
         public void SetBossesToDodge()
         {
             Log.InfoFormat("[DangerDodger] SetBossesToDodge");
-            bossesToDodge = new List<Boss>();
+            bossesToDodge = new List<BossInfo>();
             if (DangerDodgerSettings.Instance.Bosses != null)
             {
-                foreach (Boss boss in Bosses.AllBosses)
+                foreach (BossInfo boss in BossDataExtractor.GetBossesInfo())
                 {
                     if (DangerDodgerSettings.Instance.Bosses.Any(b => b.Text == boss.Name && b.IsChecked))
                     {
@@ -253,10 +253,10 @@ namespace DangerDodger
                 bool detectedBoss = false;
                 foreach (CachedMonster monster in surroundingMonsters.Where(m => m.Rarity == Rarity.Unique))
                 {
-                    Boss correspondingBoss = bossesToDodge.FirstOrDefault(b => b.Name == monster.Name);
+                    BossInfo correspondingBoss = bossesToDodge.FirstOrDefault(b => b.Name == monster.Name);
                     if (correspondingBoss != null)
                     {
-                        if (correspondingBoss.Attack.Select(a => a.AttackName).Contains(monster.currentSkillName))
+                        if (correspondingBoss.Attacks.Select(a => a.Name).Contains(monster.currentSkillName))
                         {
 
                             return false;

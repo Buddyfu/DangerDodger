@@ -1,0 +1,172 @@
+﻿[
+  {
+    "Name": "Brutus, Lord Incarcerator",
+    "Attacks": [
+      {
+        "Name": "brutus_hook",
+        "AttackStyle": "Line",
+        "Value": null
+      },
+      {
+        "Name": "brutus_spiked_ground",
+        "AttackStyle": "Circle",
+        "Value": 25
+      },
+      {
+        "Name": "brutus_ground_slam",
+        "AttackStyle": "Sector",
+        "Value": 70
+      }
+    ]
+  },
+  {
+    "Name": "Merveil, the Siren",
+    "Attacks": [
+      {
+        "Name": "merveil_ice_spear",
+        "AttackStyle": "Line",
+        "Value": null
+      },
+      {
+        "Name": "Firestorm",
+        "AttackStyle": "Circle",
+        "Value": 25
+      }
+    ]
+  },
+  {
+    "Name": "Vaal Oversoul",
+    "Attacks": [
+      {
+        "Name": "inca_boss_rocks",
+        "AttackStyle": "AnywhereButCaster",
+        "Value": null
+      },
+      {
+        "Name": "inca_boss_explosion",
+        "AttackStyle": "Circle",
+        "Value": 25
+      },
+      {
+        "Name": "inca_boss_laser",
+        "AttackStyle": "Line",
+        "Value": null
+      }
+    ]
+  },
+  {
+    "Name": "Piety",
+    "Attacks": [
+      {
+        "Name": "Ball Lightning",
+        "AttackStyle": "Line",
+        "Value": null
+      },
+      {
+        "Name": "Firestorm",
+        "AttackStyle": "Circle",
+        "Value": 30
+      },
+      {
+        "Name": "Ice Shot",
+        "AttackStyle": "Sector",
+        "Value": 45
+      }
+    ]
+  },
+  {
+    "Name": "General Gravicius",
+    "Attacks": [
+      {
+        "Name": "Firestorm",
+        "AttackStyle": "Circle",
+        "Value": 25
+      }
+    ]
+  },
+  {
+    "Name": "Kole",
+    "Attacks": [
+      {
+        "Name": "brutus_hook",
+        "AttackStyle": "Line",
+        "Value": null
+      },
+      {
+        "Name": "Ground Slam",
+        "AttackStyle": "Sector",
+        "Value": 70
+      }
+    ]
+  },
+  {
+    "Name": "Dominus, High Templar",
+    "Attacks": [
+      {
+        "Name": "dominus_lightning_souls",
+        "AttackStyle": "Line",
+        "Value": null
+      },
+      {
+        "Name": "Touch Of God",
+        "AttackStyle": "Circle",
+        "Value": 30
+      }
+    ]
+  },
+  {
+    "Name": "Dominus, Ascendant",
+    "Attacks": [
+      {
+        "Name": "dominus_demon_charge",
+        "AttackStyle": "Circle",
+        "Value": 20
+      }
+    ]
+  },
+  {
+    "Name": "Voll, Emperor of Purity",
+    "Attacks": [
+      {
+        "Name": "voll_charge",
+        "AttackStyle": "Line",
+        "Value": null
+      },
+      {
+        "Name": "voll_slam",
+        "AttackStyle": "Circle",
+        "Value": 25
+      }
+    ]
+  },
+  {
+    "Name": "King Kaom",
+    "Attacks": [
+      {
+        "Name": "kaom_fire_chasm",
+        "AttackStyle": "Line",
+        "Value": null
+      },
+      {
+        "Name": "Leap Slam",
+        "AttackStyle": "Circle",
+        "Value": 15
+      }
+    ]
+  },
+  {
+    "Name": "Daresso, King of Swords",
+    "Attacks": [
+      {
+        "Name": "daresso_attack_combo",
+        "AttackStyle": "Line",
+        "Value": null
+      },
+      {
+        "Name": "daresso_summon_clones",
+        "AttackStyle": "Circle",
+        "Value": 45
+      }
+    ]
+  }
+]
